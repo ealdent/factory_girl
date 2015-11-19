@@ -34,13 +34,19 @@ module FactoryGirl
 
     def error_message
       lines = invalid_factories.map do |factory, exception|
-        "* #{factory.name} - #{exception.message} (#{exception.class.name})"
+        backtrace_range = (0...exception.backtrace.index { |bt| bt =~ /factory_girl/ })
+        <<-ERROR_MESSAGE
+* #{factory.name} - #{exception.message} (#{exception.class.name})
+  ↳  #{exception.backtrace[backtrace_range].join("\n     ")}
+        ERROR_MESSAGE
       end
 
       <<-ERROR_MESSAGE.strip
-The following factories are invalid:
+!
+-------------------- Invalid Factories --------------------
 
-#{lines.join("\n")}
+#{lines.join("\n\n")}
+-----------------------------------------------------------
       ERROR_MESSAGE
     end
   end
